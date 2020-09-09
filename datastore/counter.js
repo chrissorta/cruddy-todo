@@ -1,7 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 const sprintf = require('sprintf-js').sprintf;
-
+const Promise = require('bluebird');
+const readFilePromise = Promise.promisify(fs.readFile);
+const writeFilePromise = Promise.promisify(fs.writeFile);
 var counter = 0;
 
 // Private helper functions ////////////////////////////////////////////////////
@@ -16,24 +18,17 @@ const zeroPaddedNumber = (num) => {
 };
 
 const readCounter = (callback) => {
-  fs.readFile(exports.counterFile, (err, fileData) => {
-    if (err) {
-      callback(null, 0);
-    } else {
-      callback(null, Number(fileData));
-    }
-  });
+
+  readFilePromise(exports.counterFile).then(fileData =>
+    callback(null, Number(fileData)))
+    .catch(err => callback(err, null));
 };
 
 const writeCounter = (count, callback) => {
   var counterString = zeroPaddedNumber(count);
-  fs.writeFile(exports.counterFile, counterString, (err) => {
-    if (err) {
-      throw ('error writing counter');
-    } else {
-      callback(null, counterString);
-    }
-  });
+  writeFilePromise(exports.counterFile, counterString)
+    .then(() => callback(null, counterString))
+    .catch((err) => { throw ('error writing counter'); });
 };
 
 // Public API - Fix this function //////////////////////////////////////////////
@@ -53,11 +48,6 @@ exports.getNextUniqueId = (cb) => {
     }
   });
 };
-
-//return zeroPaddedNumber(counter);
-// writeCounter(counter, () => {
-//   console.log('success!');
-// });
 
 
 
