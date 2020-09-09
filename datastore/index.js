@@ -31,8 +31,10 @@ exports.readAll = (callback) => {
     if (err) {
       console.log('error: ', err);
     } else {
-      return files.map(file => {
-        return callback(null, {id: file, text: file});
+      data = files.map(file => {
+        var id = path.basename(file, '.txt');
+
+        return {id, text: id};
         // fs.readFile(`${exports.dataDir}/${file}`, (err, data) => {
         //   if (err) {
         //     return console.log('error: ', err);
@@ -41,7 +43,7 @@ exports.readAll = (callback) => {
         //   }
         // });
       });
-
+      callback(null, data);
       // let data = files.map(file => {
       //   return fs.readFile(`${exports.dataDir}/${file}`, (err, data) => {
       //     if (err) {
